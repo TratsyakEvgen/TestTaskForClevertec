@@ -62,17 +62,18 @@ public class CheckServiceImpl implements CheckService {
         Map<Long, Integer> groupProducts = groupByQuantityProducts(orderProducts);
 
         List<Product> stockProducts;
+        DiscountCard discountCard;
         try {
             stockProducts = productRepository.getProductsById(groupProducts.keySet());
+
+            checkProductsInOrder(groupProducts, stockProducts);
+
+            fillProductsInOrder(orderProducts, stockProducts);
+
+            discountCard = getDiscountCard(Integer.valueOf(order.getDiscountCard()));
         } catch (RepositoryException e) {
             throw new ServiceException("Can not create check for order" + order, e, ErrorCode.INTERNAL_SERVER_ERROR);
         }
-
-        checkProductsInOrder(groupProducts, stockProducts);
-
-        fillProductsInOrder(orderProducts, stockProducts);
-
-        DiscountCard discountCard = getDiscountCard(Integer.valueOf(order.getDiscountCard()));
 
         Check check = Check.builder()
                 .localDateTime(LocalDateTime.now())
