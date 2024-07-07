@@ -146,7 +146,7 @@ public class CheckServiceImpl implements CheckService {
         }
 
         if (!groupProducts.isEmpty()) {
-            throw new ServiceException("Unknown id product: " + groupProducts.values(), ErrorCode.BAD_REQUEST);
+            throw new ServiceException("Unknown id product: " + groupProducts.keySet(), ErrorCode.BAD_REQUEST);
         }
 
         if (!errors.isEmpty()) {
