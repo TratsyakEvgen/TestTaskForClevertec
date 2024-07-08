@@ -51,4 +51,12 @@ public class ValidatorImpl implements Validator {
         executors.forEach(executorMap -> executorMap.execute(obj, errors));
         return errors;
     }
+
+    public AnnotationExecutor<ValidCollection> getValidCollectionExecutor() {
+        return validCollectionExecutor;
+    }
+
+    public void setValidCollectionExecutor(AnnotationExecutor<ValidCollection> validCollectionExecutor) {
+        this.validCollectionExecutor = validCollectionExecutor;
+    }
 }

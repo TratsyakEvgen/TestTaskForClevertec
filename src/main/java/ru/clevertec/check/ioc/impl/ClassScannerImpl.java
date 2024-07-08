@@ -16,7 +16,7 @@ public class ClassScannerImpl implements ClassScanner {
     @Override
     public Set<Class<?>> findAllClasses() {
 
-        String realPath = System.getProperty("java.class.path").split(File.pathSeparator)[0] + "\\";
+        String realPath = System.getProperty("java.class.path").split(File.pathSeparator)[0] + File.separator;
 
         try (Stream<Path> stream = Files.walk(Paths.get(realPath))) {
 
@@ -46,7 +46,7 @@ public class ClassScannerImpl implements ClassScanner {
     private String getClassName(String path, String realPath) {
         return path.replace(realPath, "")
                 .replace(".class", "")
-                .replace("\\", ".");
+                .replace(File.separator, ".");
     }
 
 }
