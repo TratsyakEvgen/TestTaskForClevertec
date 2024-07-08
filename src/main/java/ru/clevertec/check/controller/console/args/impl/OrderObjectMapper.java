@@ -40,7 +40,7 @@ public class OrderObjectMapper implements ObjectMapper<Order> {
         return Order.builder()
                 .products(listProductsDeserializer.deserializer(arg, "\\d+-\\d+", "-"))
                 .discountCard(stringDeserializer.deserializer(arg, "discountCard=\\d{4}", "="))
-                .balanceDebitCard(bigDecimalDeserializer.deserializer(arg, "balanceDebitCard=-?\\d+(\\.?\\d{2}){0,2}", "="))
+                .balanceDebitCard(bigDecimalDeserializer.deserializer(arg, "balanceDebitCard=-?\\d+(\\.\\d{1,2})?", "="))
                 .build();
     }
 }

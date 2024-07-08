@@ -8,6 +8,6 @@ import java.math.RoundingMode;
 public class BigDecimalConvertor implements Convertor {
     @Override
     public Object convert(String s) {
-        return new BigDecimal(s.replace(",", ".")).setScale(2, RoundingMode.HALF_UP);
+        return new BigDecimal(s).setScale(2, RoundingMode.HALF_UP);
     }
 }

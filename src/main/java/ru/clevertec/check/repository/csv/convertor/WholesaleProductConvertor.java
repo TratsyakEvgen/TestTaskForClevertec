@@ -6,7 +6,7 @@ public class WholesaleProductConvertor implements Convertor {
 
     @Override
     public Object convert(String s) {
-        return (s.equals("+")) ? Boolean.TRUE : Boolean.FALSE;
+        return (s.equals("true")) ? Boolean.TRUE : Boolean.FALSE;
     }
 }
 
