@@ -17,6 +17,6 @@ public class StringDeserializer implements ObjectDeserializer<String> {
                     String[] splitString = d.split(split);
                     return splitString[1];
                 })
-                .orElse("Empty");
+                .orElse("");
     }
 }
