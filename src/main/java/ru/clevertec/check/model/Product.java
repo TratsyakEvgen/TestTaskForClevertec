@@ -1,7 +1,5 @@
 package ru.clevertec.check.model;
 
-import ru.clevertec.check.repository.csv.annotation.Csv;
-import ru.clevertec.check.repository.csv.convertor.*;
 import ru.clevertec.check.service.validator.annotation.Min;
 
 import java.math.BigDecimal;
@@ -10,21 +8,17 @@ import java.util.Objects;
 
 public class Product {
 
-    @Csv(converter = LongConvertor.class, column = "id")
     @Min(value = 1, message = "Id of products must not be null")
     private long id;
 
-    @Csv(converter = StringConvertor.class, column = "description")
     private String description;
 
-    @Csv(converter = BigDecimalConvertor.class, column = "price")
     private BigDecimal price;
 
-    @Csv(converter = IntegerConvertor.class, column = "quantity_in_stock")
     @Min(value = 1, message = "Quantity of products must not be null")
     private int quantity;
 
-    @Csv(converter = WholesaleProductConvertor.class, column = "wholesale_product")
+
     private boolean wholesaleProduct;
 
     public Product() {

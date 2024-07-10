@@ -4,8 +4,8 @@ import ru.clevertec.check.ioc.annotation.Inject;
 import ru.clevertec.check.ioc.annotation.NoSpringComponent;
 import ru.clevertec.check.service.validator.AnnotationExecutor;
 import ru.clevertec.check.service.validator.FieldScanner;
-import ru.clevertec.check.service.validator.ValidatorException;
 import ru.clevertec.check.service.validator.annotation.NotNull;
+import ru.clevertec.check.service.validator.exception.ValidatorException;
 
 import java.lang.reflect.Field;
 import java.util.List;

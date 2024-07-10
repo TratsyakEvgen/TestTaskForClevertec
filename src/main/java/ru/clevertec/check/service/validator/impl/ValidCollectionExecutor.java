@@ -5,8 +5,8 @@ import ru.clevertec.check.ioc.annotation.NoSpringComponent;
 import ru.clevertec.check.service.validator.AnnotationExecutor;
 import ru.clevertec.check.service.validator.FieldScanner;
 import ru.clevertec.check.service.validator.Validator;
-import ru.clevertec.check.service.validator.ValidatorException;
 import ru.clevertec.check.service.validator.annotation.ValidCollection;
+import ru.clevertec.check.service.validator.exception.ValidatorException;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -39,8 +39,8 @@ public class ValidCollectionExecutor implements AnnotationExecutor<ValidCollecti
                 );
             }
 
-        } catch (IllegalAccessException e) {
-            throw new ValidatorException("Fail check on Min in " + object, e);
+        } catch (IllegalAccessException | ClassCastException e) {
+            throw new ValidatorException("Fail check ValidCollection in " + object, e);
         }
 
     }

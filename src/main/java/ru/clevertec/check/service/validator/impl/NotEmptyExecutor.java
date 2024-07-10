@@ -4,8 +4,8 @@ import ru.clevertec.check.ioc.annotation.Inject;
 import ru.clevertec.check.ioc.annotation.NoSpringComponent;
 import ru.clevertec.check.service.validator.AnnotationExecutor;
 import ru.clevertec.check.service.validator.FieldScanner;
-import ru.clevertec.check.service.validator.ValidatorException;
 import ru.clevertec.check.service.validator.annotation.NotEmpty;
+import ru.clevertec.check.service.validator.exception.ValidatorException;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -39,7 +39,7 @@ public class NotEmptyExecutor implements AnnotationExecutor<NotEmpty> {
                 }
             }
 
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | ClassCastException e) {
             throw new ValidatorException("Fail check on Pattern in " + object, e);
         }
     }

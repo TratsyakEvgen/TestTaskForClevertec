@@ -1,8 +1,6 @@
 package ru.clevertec.check.config;
 
 public class ApplicationConfig {
-    public static String PRODUCTS = "./src/main/resources/products.csv";
-    public static String DISCOUNT_CARDS = "./src/main/resources/discountCards.csv";
     public static String RESULT = "result.csv";
     public static String CSV_SEPARATOR = ";";
     public static short DISCOUNT_DEFAULT = 2;

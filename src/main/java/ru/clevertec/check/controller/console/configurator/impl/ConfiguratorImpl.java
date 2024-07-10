@@ -6,35 +6,51 @@ import ru.clevertec.check.controller.console.configurator.Configurator;
 import ru.clevertec.check.controller.console.configurator.ConfiguratorException;
 import ru.clevertec.check.ioc.annotation.Inject;
 import ru.clevertec.check.ioc.annotation.NoSpringComponent;
+import ru.clevertec.check.repository.connection.pool.ConnectionPool;
+import ru.clevertec.check.repository.connection.pool.ConnectionPoolException;
+import ru.clevertec.check.repository.connection.pool.PoolData;
 
 @NoSpringComponent
 public class ConfiguratorImpl implements Configurator {
     @Inject
     private ObjectDeserializer<String> objectDeserializer;
+    @Inject
+    private ConnectionPool connectionPool;
 
     public ConfiguratorImpl() {
     }
 
-    public ConfiguratorImpl(ObjectDeserializer<String> objectDeserializer) {
+
+    public ConfiguratorImpl(ObjectDeserializer<String> objectDeserializer, ConnectionPool connectionPool) {
         this.objectDeserializer = objectDeserializer;
+        this.connectionPool = connectionPool;
     }
 
     @Override
     public void tune(String[] args) {
-        String saveToFile = objectDeserializer.deserializer(args, "saveToFile=.+", "=");
-        String pathToFile = objectDeserializer.deserializer(args, "pathToFile=.+", "=");
+        ApplicationConfig.RESULT = getParam("saveToFile", args);
 
-        if (saveToFile.isEmpty()) {
-            throw new ConfiguratorException("No parameter (saveToFile) passed");
+        String url = getParam("datasource.url", args);
+        String userName = getParam("datasource.username", args);
+        String password = getParam("datasource.password", args);
+
+        PoolData poolData = PoolData.builder().url(url).user(userName).password(password).poolSize(1).build();
+
+        try {
+            connectionPool.initPoolData(poolData);
+        } catch (ConnectionPoolException e) {
+            throw new ConfiguratorException("Exception configuration connection pool ", e);
         }
 
-        ApplicationConfig.RESULT = saveToFile;
+    }
 
-        if (pathToFile.isEmpty()) {
-            throw new ConfiguratorException("No parameter (pathToFile) passed");
+    private String getParam(String name, String[] args) {
+        String param = objectDeserializer.deserializer(args, name + "=.+", "=");
+
+        if (param.isEmpty()) {
+            throw new ConfiguratorException(String.format("No parameter (%s) passed", name));
         }
 
-        ApplicationConfig.PRODUCTS = pathToFile;
-
+        return param;
     }
 }

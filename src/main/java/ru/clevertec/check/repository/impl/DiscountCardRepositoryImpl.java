@@ -1,48 +1,52 @@
 package ru.clevertec.check.repository.impl;
 
 
-import ru.clevertec.check.config.ApplicationConfig;
 import ru.clevertec.check.ioc.annotation.Inject;
 import ru.clevertec.check.ioc.annotation.NoSpringComponent;
 import ru.clevertec.check.model.DiscountCard;
 import ru.clevertec.check.repository.DiscountCardRepository;
 import ru.clevertec.check.repository.RepositoryException;
-import ru.clevertec.check.repository.csv.Csv;
-import ru.clevertec.check.repository.csv.exeption.CsvParserException;
-import ru.clevertec.check.repository.csv.impl.CsvFileParserImpl;
+import ru.clevertec.check.repository.connection.pool.ConnectionPool;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Optional;
 
 @NoSpringComponent
 public class DiscountCardRepositoryImpl implements DiscountCardRepository {
-
     @Inject
-    private CsvFileParserImpl csvFileParserImpl;
+    private ConnectionPool connectionPool;
+
 
     public DiscountCardRepositoryImpl() {
     }
 
-    public DiscountCardRepositoryImpl(CsvFileParserImpl csvFileParserImpl) {
-        this.csvFileParserImpl = csvFileParserImpl;
+    public DiscountCardRepositoryImpl(ConnectionPool connectionPool) {
+        this.connectionPool = connectionPool;
     }
 
     @Override
     public Optional<DiscountCard> getDiscountCardByNumber(int number) {
 
-        try {
+        try (Connection connection = connectionPool.takeConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM discount_card WHERE discount_card.number = ?")) {
 
-            Csv<DiscountCard> csv = csvFileParserImpl.parse(DiscountCard.class, ApplicationConfig.DISCOUNT_CARDS);
+            statement.setInt(1, number);
 
-            for (DiscountCard discountCard : csv) {
-                if (discountCard.getNumber() == number) {
-                    return Optional.of(discountCard);
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) {
+                    return Optional.ofNullable(DiscountCard.builder()
+                            .id(result.getLong("id"))
+                            .number(result.getInt("number"))
+                            .amount(result.getShort("amount"))
+                            .build());
                 }
+                return Optional.empty();
             }
-
-        } catch (CsvParserException e) {
-            throw new RepositoryException("Can not get discount card by number " + number, e);
+        } catch (SQLException e) {
+            throw new RepositoryException("Error find discount card by number", e);
         }
-
-        return Optional.empty();
     }
 }

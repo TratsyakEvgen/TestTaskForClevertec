@@ -1,15 +1,14 @@
 package ru.clevertec.check.repository.impl;
 
-import ru.clevertec.check.config.ApplicationConfig;
+
 import ru.clevertec.check.ioc.annotation.Inject;
 import ru.clevertec.check.ioc.annotation.NoSpringComponent;
 import ru.clevertec.check.model.Product;
 import ru.clevertec.check.repository.ProductRepository;
 import ru.clevertec.check.repository.RepositoryException;
-import ru.clevertec.check.repository.csv.Csv;
-import ru.clevertec.check.repository.csv.exeption.CsvParserException;
-import ru.clevertec.check.repository.csv.impl.CsvFileParserImpl;
+import ru.clevertec.check.repository.connection.pool.ConnectionPool;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -17,34 +16,45 @@ import java.util.Set;
 @NoSpringComponent
 public class ProductRepositoryImpl implements ProductRepository {
     @Inject
-    private CsvFileParserImpl csvFileParserImpl;
+    private ConnectionPool connectionPool;
 
     public ProductRepositoryImpl() {
     }
 
-    public ProductRepositoryImpl(CsvFileParserImpl csvFileParserImpl) {
-        this.csvFileParserImpl = csvFileParserImpl;
+    public ProductRepositoryImpl(ConnectionPool connectionPool) {
+        this.connectionPool = connectionPool;
     }
 
     @Override
     public List<Product> getProductsById(Set<Long> setId) {
 
-        try {
+        try (Connection connection = connectionPool.takeConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM product WHERE product.id = ANY(?)")) {
 
-            Csv<Product> csv = csvFileParserImpl.parse(Product.class, ApplicationConfig.PRODUCTS);
+            Array array = connection.createArrayOf("BIGINT", setId.toArray());
 
-            List<Product> productList = new ArrayList<>();
+            statement.setArray(1, array);
 
-            for (Product product : csv) {
-                if (setId.contains(product.getId())) {
-                    productList.add(product);
+
+            try (ResultSet result = statement.executeQuery()) {
+
+                List<Product> products = new ArrayList<>();
+
+                while (result.next()) {
+                    Product product = Product.builder()
+                            .id(result.getLong("id"))
+                            .description(result.getString("description"))
+                            .quantity(result.getInt("quantity_in_stock"))
+                            .price(result.getBigDecimal("price"))
+                            .wholesaleProduct(result.getBoolean("wholesale_product"))
+                            .build();
+                    products.add(product);
                 }
+
+                return products;
             }
-
-            return productList;
-
-        } catch (CsvParserException e) {
-            throw new RepositoryException("Can not get list products by id " + setId, e);
+        } catch (SQLException e) {
+            throw new RepositoryException("Error find products by id", e);
         }
     }
 }

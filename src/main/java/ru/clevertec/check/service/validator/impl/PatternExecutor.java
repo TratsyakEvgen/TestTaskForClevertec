@@ -4,8 +4,8 @@ import ru.clevertec.check.ioc.annotation.Inject;
 import ru.clevertec.check.ioc.annotation.NoSpringComponent;
 import ru.clevertec.check.service.validator.AnnotationExecutor;
 import ru.clevertec.check.service.validator.FieldScanner;
-import ru.clevertec.check.service.validator.ValidatorException;
 import ru.clevertec.check.service.validator.annotation.Pattern;
+import ru.clevertec.check.service.validator.exception.ValidatorException;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -34,12 +34,12 @@ public class PatternExecutor implements AnnotationExecutor<Pattern> {
                 String value = (String) field.get(object);
 
 
-                if (!value.matches(regex)) {
+                if (value == null || !value.matches(regex)) {
                     message.add(annotation.message());
                 }
             }
 
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | ClassCastException e) {
             throw new ValidatorException("Fail check on Pattern in " + object, e);
         }
     }

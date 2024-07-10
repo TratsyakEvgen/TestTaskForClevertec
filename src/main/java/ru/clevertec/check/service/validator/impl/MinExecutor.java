@@ -5,8 +5,8 @@ import ru.clevertec.check.ioc.annotation.Inject;
 import ru.clevertec.check.ioc.annotation.NoSpringComponent;
 import ru.clevertec.check.service.validator.AnnotationExecutor;
 import ru.clevertec.check.service.validator.FieldScanner;
-import ru.clevertec.check.service.validator.ValidatorException;
 import ru.clevertec.check.service.validator.annotation.Min;
+import ru.clevertec.check.service.validator.exception.ValidatorException;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -32,14 +32,22 @@ public class MinExecutor implements AnnotationExecutor<Min> {
                 long annotationLong = annotation.value();
 
                 field.setAccessible(true);
-                long fieldLong = field.getLong(object);
+                Object fieldObject = field.get(object);
+
+                if (fieldObject == null) {
+                    message.add(annotation.message());
+                    return;
+                }
+
+                long fieldLong = ((Number) fieldObject).longValue();
+
 
                 if (fieldLong < annotationLong) {
                     message.add(annotation.message());
                 }
             }
 
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | IllegalArgumentException | ClassCastException e) {
             throw new ValidatorException("Fail check on Min in " + object, e);
         }
     }

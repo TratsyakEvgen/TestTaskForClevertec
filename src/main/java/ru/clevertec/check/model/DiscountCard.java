@@ -1,21 +1,14 @@
 package ru.clevertec.check.model;
 
-import ru.clevertec.check.repository.csv.annotation.Csv;
-import ru.clevertec.check.repository.csv.convertor.IntegerConvertor;
-import ru.clevertec.check.repository.csv.convertor.LongConvertor;
-import ru.clevertec.check.repository.csv.convertor.ShortConvertor;
 
 import java.util.Objects;
 
 public class DiscountCard {
 
-    @Csv(converter = LongConvertor.class, column = "id")
     private long id;
 
-    @Csv(converter = ShortConvertor.class, column = "discount amount, %")
     private short amount;
 
-    @Csv(converter = IntegerConvertor.class, column = "number")
     private int number;
 
     public DiscountCard() {
