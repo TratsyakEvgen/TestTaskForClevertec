@@ -12,7 +12,7 @@ class StringDeserializerTest {
 
 
     @BeforeEach
-    public void init() {
+    public void setup() {
         objectDeserializer = new StringDeserializer();
     }
 
@@ -21,8 +21,9 @@ class StringDeserializerTest {
         String[] args = new String[]{"3-1", "2-5", "discountCard=1111", "balanceDebitCard=100", "saveToFile=./result.csv",
                 "datasource.url=jdbc:postgresql://localhost:5432/test", "datasource.username=postgres", "datasource.password=dffd"};
 
-        String string = objectDeserializer.deserializer(args, "discountCard=\\d{4}", "=");
-        assertEquals("1111", string);
+        String actual = objectDeserializer.deserializer(args, "discountCard=\\d{4}", "=");
+
+        assertEquals("1111", actual);
 
     }
 
@@ -31,9 +32,9 @@ class StringDeserializerTest {
         String[] args = new String[]{"saveToFile=./result.csv",
                 "datasource.url=jdbc:postgresql://localhost:5432/test", "datasource.username=postgres", "datasource.password=dffd"};
 
-        String string = objectDeserializer.deserializer(args, "discountCard=\\d{4}", "=");
+        String actual = objectDeserializer.deserializer(args, "discountCard=\\d{4}", "=");
 
-        assertEquals("", string);
+        assertEquals("", actual);
 
     }
 

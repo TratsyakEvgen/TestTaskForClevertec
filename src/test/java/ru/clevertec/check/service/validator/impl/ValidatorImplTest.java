@@ -45,21 +45,21 @@ class ValidatorImplTest {
         String string = "test";
         BigDecimal bigDecimal = BigDecimal.ZERO;
         int i = 0;
-        ExpectedObject expectedObject = new ExpectedObject(collection, string, bigDecimal, i);
+        TestObject testObject = new TestObject(collection, string, bigDecimal, i);
 
         List<String> messages = Collections.emptyList();
-        validator.validate(expectedObject);
+        validator.validate(testObject);
 
 
-        verify(minExecutor).execute(expectedObject, messages);
-        verify(patternExecutor).execute(expectedObject, messages);
-        verify(notEmptyExecutor).execute(expectedObject, messages);
-        verify(notNullExecutor).execute(expectedObject, messages);
-        verify(validCollectionExecutor).execute(expectedObject, messages);
+        verify(minExecutor).execute(testObject, messages);
+        verify(patternExecutor).execute(testObject, messages);
+        verify(notEmptyExecutor).execute(testObject, messages);
+        verify(notNullExecutor).execute(testObject, messages);
+        verify(validCollectionExecutor).execute(testObject, messages);
     }
 
 
-    private record ExpectedObject(
+    private record TestObject(
             @ValidCollection @NotEmpty List<String> collection,
             @Pattern String string,
             @NotNull BigDecimal balanceDebitCard,

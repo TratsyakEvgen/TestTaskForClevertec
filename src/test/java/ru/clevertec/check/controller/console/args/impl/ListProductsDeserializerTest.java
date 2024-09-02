@@ -7,7 +7,7 @@ import ru.clevertec.check.model.Product;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ListProductsDeserializerTest {
@@ -16,7 +16,7 @@ class ListProductsDeserializerTest {
 
 
     @BeforeEach
-    public void init() {
+    public void setup() {
         objectDeserializer = new ListProductsDeserializer();
     }
 
@@ -26,11 +26,11 @@ class ListProductsDeserializerTest {
                 "datasource.url=jdbc:postgresql://localhost:5432/test", "datasource.username=postgres", "datasource.password=dffd"};
 
         List<Product> productList = objectDeserializer.deserializer(args, "\\d+-\\d+", "-");
-        assertArrayEquals(new Product[]{
+        assertEquals(List.of(
                         Product.builder().id(3L).quantity(1).build(),
                         Product.builder().id(2L).quantity(5).build()
-                },
-                productList.toArray());
+                ),
+                productList);
 
     }
 
@@ -42,6 +42,5 @@ class ListProductsDeserializerTest {
         List<Product> productList = objectDeserializer.deserializer(args, "\\d+-\\d+", "-");
 
         assertTrue(productList.isEmpty());
-
     }
 }

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.clevertec.check.config.ApplicationConfig;
 import ru.clevertec.check.model.Check;
@@ -13,6 +14,7 @@ import ru.clevertec.check.repository.DiscountCardRepository;
 import ru.clevertec.check.repository.ProductRepository;
 import ru.clevertec.check.repository.RepositoryException;
 import ru.clevertec.check.service.CheckService;
+import ru.clevertec.check.service.PriceCalculator;
 import ru.clevertec.check.service.ServiceException;
 import ru.clevertec.check.service.validator.Validator;
 import ru.clevertec.check.util.ErrorCode;
@@ -21,11 +23,10 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,12 +37,16 @@ class CheckServiceImplTest {
     private ProductRepository productRepository;
     @Mock
     private DiscountCardRepository discountCardRepository;
+    @Mock
+    private PriceCalculator priceCalculator;
+    @Mock
+    private Order order;
 
     private CheckService checkService;
 
     @BeforeEach
     public void init() {
-        checkService = new CheckServiceImpl(new PriceCalculatorImpl(),
+        checkService = new CheckServiceImpl(priceCalculator,
                 productRepository,
                 discountCardRepository,
                 ApplicationConfig.DISCOUNT_DEFAULT,
@@ -50,31 +55,29 @@ class CheckServiceImplTest {
 
     @Test
     void getCheck_NoValidData() {
-        Order mockOrder = mock(Order.class);
-        when(validator.validate(mockOrder)).thenReturn(List.of("validation error message"));
+        when(validator.validate(Mockito.any())).thenReturn(List.of("validation error message"));
 
-        ServiceException exception = assertThrows(ServiceException.class, () -> checkService.getCheck(mockOrder));
+        ServiceException exception = assertThrows(ServiceException.class, () -> checkService.getCheck(Mockito.any()));
 
         assertEquals(ErrorCode.BAD_REQUEST, exception.getErrorCode());
     }
 
     @Test
     void getCheck_ProductRepositoryException() {
-        Order mockOrder = mock(Order.class);
-        when(validator.validate(mockOrder)).thenReturn(Collections.emptyList());
+        when(validator.validate(Mockito.any())).thenReturn(Collections.emptyList());
         when(productRepository.getProductsById(Collections.emptySet())).thenThrow(RepositoryException.class);
 
-        ServiceException exception = assertThrows(ServiceException.class, () -> checkService.getCheck(mockOrder));
+        ServiceException exception = assertThrows(ServiceException.class, () -> checkService.getCheck(order));
 
         assertEquals(ErrorCode.INTERNAL_SERVER_ERROR, exception.getErrorCode());
     }
 
     @Test
     void getCheck_DiscountCardRepositoryException() {
-        Order order = Order.builder().discountCard("1000").products(Collections.emptyList()).build();
-        when(validator.validate(order)).thenReturn(Collections.emptyList());
+        when(validator.validate(Mockito.any())).thenReturn(Collections.emptyList());
         when(productRepository.getProductsById(Collections.emptySet())).thenReturn(Collections.emptyList());
-        when(discountCardRepository.getDiscountCardByNumber(1000)).thenThrow(RepositoryException.class);
+        when(discountCardRepository.getDiscountCardByNumber(Mockito.anyInt())).thenThrow(RepositoryException.class);
+        when(order.getDiscountCard()).thenReturn("1000");
 
         ServiceException exception = assertThrows(ServiceException.class, () -> checkService.getCheck(order));
 
@@ -84,9 +87,9 @@ class CheckServiceImplTest {
 
     @Test
     void getCheck_IncorrectIDProductsInOrder() {
-        Order order = Order.builder().products(List.of(Product.builder().id(100).build())).build();
-        when(validator.validate(order)).thenReturn(Collections.emptyList());
-        when(productRepository.getProductsById(Set.of(100L))).thenReturn(Collections.emptyList());
+        when(validator.validate(Mockito.any())).thenReturn(Collections.emptyList());
+        when(order.getProducts()).thenReturn(List.of(Product.builder().id(100).build()));
+        when(productRepository.getProductsById(Mockito.any())).thenReturn(Collections.emptyList());
 
         ServiceException exception = assertThrows(ServiceException.class, () -> checkService.getCheck(order));
 
@@ -95,9 +98,9 @@ class CheckServiceImplTest {
 
     @Test
     void getCheck_IncorrectQuantityProductsInOrder() {
-        Order order = Order.builder().products(List.of(Product.builder().id(1L).quantity(5).build())).build();
-        when(validator.validate(order)).thenReturn(Collections.emptyList());
-        when(productRepository.getProductsById(Set.of(1L))).thenReturn(List.of(Product.builder().id(1L).quantity(4).build()));
+        when(validator.validate(Mockito.any())).thenReturn(Collections.emptyList());
+        when(order.getProducts()).thenReturn(List.of(Product.builder().id(1L).quantity(5).build()));
+        when(productRepository.getProductsById(Mockito.any())).thenReturn(List.of(Product.builder().id(1L).quantity(4).build()));
 
 
         ServiceException exception = assertThrows(ServiceException.class, () -> checkService.getCheck(order));
@@ -108,17 +111,20 @@ class CheckServiceImplTest {
 
     @Test
     void getCheck_CheckDefaultDiscountCard() {
-        Product product = Product.builder()
-                .id(1)
-                .price(BigDecimal.valueOf(10))
-                .wholesaleProduct(false)
-                .description("test")
-                .quantity(10)
-                .build();
-        Order order = Order.builder().discountCard("1000").balanceDebitCard(BigDecimal.valueOf(1000)).products(List.of(product)).build();
-        when(validator.validate(order)).thenReturn(Collections.emptyList());
-        when(productRepository.getProductsById(Set.of(product.getId()))).thenReturn(List.of(product));
-        when(discountCardRepository.getDiscountCardByNumber(1000)).thenReturn(Optional.empty());
+        when(validator.validate(Mockito.any())).thenReturn(Collections.emptyList());
+        when(order.getDiscountCard()).thenReturn("1000");
+        when(order.getProducts()).thenReturn(List.of(Product.builder().id(1L).quantity(5).build()));
+        when(productRepository.getProductsById(Mockito.any())).thenReturn(List.of(Product.builder().id(1L).quantity(5).build()));
+        when(order.getBalanceDebitCard()).thenReturn(BigDecimal.ONE);
+        doAnswer(invocationOnMock -> {
+                    Check check = invocationOnMock.getArgument(0, Check.class);
+                    check.setTotalWithDiscount(BigDecimal.ONE);
+                    return check;
+                }
+        ).when(priceCalculator).calculateTotalPrice(Mockito.any());
+
+        when(discountCardRepository.getDiscountCardByNumber(Mockito.anyInt())).thenReturn(Optional.empty());
+
 
         Check check = checkService.getCheck(order);
 
@@ -128,17 +134,20 @@ class CheckServiceImplTest {
 
     @Test
     void getCheck_NotEnoughMoney() {
-        Product product = Product.builder()
-                .id(1)
-                .price(BigDecimal.valueOf(10))
-                .wholesaleProduct(false)
-                .description("test")
-                .quantity(10)
-                .build();
-        Order order = Order.builder().discountCard("1000").balanceDebitCard(BigDecimal.ZERO).products(List.of(product)).build();
-        when(validator.validate(order)).thenReturn(Collections.emptyList());
-        when(productRepository.getProductsById(Set.of(product.getId()))).thenReturn(List.of(product));
-        when(discountCardRepository.getDiscountCardByNumber(1000)).thenReturn(Optional.empty());
+        when(validator.validate(Mockito.any())).thenReturn(Collections.emptyList());
+        when(order.getDiscountCard()).thenReturn("1000");
+        when(order.getProducts()).thenReturn(List.of(Product.builder().id(1L).quantity(5).build()));
+        when(productRepository.getProductsById(Mockito.any())).thenReturn(List.of(Product.builder().id(1L).quantity(5).build()));
+        when(discountCardRepository.getDiscountCardByNumber(Mockito.anyInt())).thenReturn(Optional.empty());
+
+        when(order.getBalanceDebitCard()).thenReturn(BigDecimal.ONE);
+        doAnswer(invocationOnMock -> {
+                    Check check = invocationOnMock.getArgument(0, Check.class);
+                    check.setTotalWithDiscount(BigDecimal.TWO);
+                    return check;
+                }
+        ).when(priceCalculator).calculateTotalPrice(Mockito.any());
+
 
         ServiceException exception = assertThrows(ServiceException.class, () -> checkService.getCheck(order));
 

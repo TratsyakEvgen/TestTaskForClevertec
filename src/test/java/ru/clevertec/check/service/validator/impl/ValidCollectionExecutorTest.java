@@ -4,13 +4,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.clevertec.check.service.validator.AnnotationExecutor;
+import ru.clevertec.check.service.validator.FieldScanner;
 import ru.clevertec.check.service.validator.Validator;
 import ru.clevertec.check.service.validator.annotation.ValidCollection;
 import ru.clevertec.check.service.validator.exception.ValidatorException;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -20,25 +21,33 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ValidCollectionExecutorTest {
-    @Mock
-    private Validator validator;
+
     private AnnotationExecutor<ValidCollection> annotationExecutor;
 
+
+    @Mock
+    private Validator validator;
+
+    @Mock
+    private FieldScanner fieldScanner;
+
+
     @BeforeEach
-    public void init() {
-        annotationExecutor = new ValidCollectionExecutor(validator, new FieldScannerImpl());
+    public void setup() {
+        annotationExecutor = new ValidCollectionExecutor(validator, fieldScanner);
     }
 
     @Test
     public void execute_checkNumberOfCalls() {
-        List<Object> objects = new ArrayList<>();
         Object obj1 = new Object();
         Object obj2 = new Object();
-        objects.add(obj1);
-        objects.add(obj2);
-        ExpectedObject expectedObject = new ExpectedObject(objects);
+        List<Object> objects = List.of(obj1, obj2);
+        TestObject testObject = new TestObject(objects);
 
-        annotationExecutor.execute(expectedObject, Collections.emptyList());
+        Mockito.when(fieldScanner.findAnnotation(ValidCollection.class, testObject))
+                .thenReturn(List.of(TestObject.class.getDeclaredFields()));
+
+        annotationExecutor.execute(testObject, Collections.emptyList());
 
         verify(validator).validate(obj1);
         verify(validator).validate(obj2);
@@ -46,16 +55,18 @@ class ValidCollectionExecutorTest {
 
     @Test
     public void execute_incorrectField() {
-        assertThrows(ValidatorException.class,
-                () -> annotationExecutor.execute(new ExpectedObjectWithIncorrectField(1), Collections.emptyList())
-        );
+        TestObjectWithIncorrectField testObject = new TestObjectWithIncorrectField(1);
+        Mockito.when(fieldScanner.findAnnotation(ValidCollection.class, testObject))
+                .thenReturn(List.of(TestObjectWithIncorrectField.class.getDeclaredFields()));
+
+        assertThrows(ValidatorException.class, () -> annotationExecutor.execute(testObject, Collections.emptyList()));
     }
 
 
-    private record ExpectedObject(@ValidCollection Collection<?> collection) {
+    private record TestObject(@ValidCollection Collection<?> collection) {
     }
 
-    private record ExpectedObjectWithIncorrectField(@ValidCollection int field1) {
+    private record TestObjectWithIncorrectField(@ValidCollection int field1) {
     }
 
 }

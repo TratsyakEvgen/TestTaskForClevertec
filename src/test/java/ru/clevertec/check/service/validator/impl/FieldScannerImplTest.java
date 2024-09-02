@@ -9,7 +9,7 @@ import ru.clevertec.check.service.validator.annotation.NotNull;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FieldScannerImplTest {
@@ -21,26 +21,29 @@ class FieldScannerImplTest {
     }
 
     @Test
-    public void findAnnotation_existsAnnotation() throws NoSuchFieldException {
+    void findAnnotation_existsAnnotation() throws NoSuchFieldException {
+        Class<?> expectedObjectClass = TestObject.class;
 
-        List<Field> fields = fieldScanner.findAnnotation(NotEmpty.class, new ExpectedObject());
+        List<Field> actual = fieldScanner.findAnnotation(NotEmpty.class, new TestObject());
 
-        Class<?> clazz = ExpectedObject.class;
-        Field[] expected = new Field[]{clazz.getDeclaredField("field1"), clazz.getDeclaredField("field3")};
-
-        assertArrayEquals(expected, fields.toArray());
+        assertEquals(
+                List.of(
+                        expectedObjectClass.getDeclaredField("field1"),
+                        expectedObjectClass.getDeclaredField("field3")
+                ),
+                actual
+        );
 
     }
 
     @Test
-    public void findAnnotation_noExistsAnnotation() {
-
-        List<Field> fields = fieldScanner.findAnnotation(NotNull.class, new ExpectedObject());
+    void findAnnotation_noExistsAnnotation() {
+        List<Field> fields = fieldScanner.findAnnotation(NotNull.class, new TestObject());
 
         assertTrue(fields.isEmpty());
     }
 
-    private static class ExpectedObject {
+    private static class TestObject {
         @NotEmpty
         private String field1;
         private String field2;
