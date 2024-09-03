@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.clevertec.check.service.validator.AnnotationExecutor;
 import ru.clevertec.check.service.validator.FieldScanner;
@@ -16,8 +15,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ValidCollectionExecutorTest {
@@ -44,7 +43,7 @@ class ValidCollectionExecutorTest {
         List<Object> objects = List.of(obj1, obj2);
         TestObject testObject = new TestObject(objects);
 
-        Mockito.when(fieldScanner.findAnnotation(ValidCollection.class, testObject))
+        when(fieldScanner.findAnnotation(ValidCollection.class, testObject))
                 .thenReturn(List.of(TestObject.class.getDeclaredFields()));
 
         annotationExecutor.execute(testObject, Collections.emptyList());
@@ -56,7 +55,7 @@ class ValidCollectionExecutorTest {
     @Test
     public void execute_incorrectField() {
         TestObjectWithIncorrectField testObject = new TestObjectWithIncorrectField(1);
-        Mockito.when(fieldScanner.findAnnotation(ValidCollection.class, testObject))
+        when(fieldScanner.findAnnotation(ValidCollection.class, testObject))
                 .thenReturn(List.of(TestObjectWithIncorrectField.class.getDeclaredFields()));
 
         assertThrows(ValidatorException.class, () -> annotationExecutor.execute(testObject, Collections.emptyList()));

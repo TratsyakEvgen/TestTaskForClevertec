@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ValidatorImplTest {

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.clevertec.check.model.DiscountCard;
 import ru.clevertec.check.repository.DiscountCardRepository;
@@ -20,6 +19,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DiscountCardRepositoryImplTest {
@@ -42,60 +42,60 @@ class DiscountCardRepositoryImplTest {
 
     @Test
     void getDiscountCardByNumber_ifConnectionThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenThrow(SQLException.class);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenThrow(SQLException.class);
 
         assertThrows(RepositoryException.class, () -> discountCardRepository.getDiscountCardByNumber(1));
     }
 
     @Test
     void getDiscountCardByNumber_ifPreparedStatementThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.doThrow(SQLException.class).when(preparedStatement).setInt(Mockito.anyInt(), Mockito.anyInt());
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        doThrow(SQLException.class).when(preparedStatement).setInt(anyInt(), anyInt());
 
         assertThrows(RepositoryException.class, () -> discountCardRepository.getDiscountCardByNumber(1));
     }
 
     @Test
     void getDiscountCardByNumber_ifResulSetThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        Mockito.when(resultSet.next()).thenThrow(SQLException.class);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenThrow(SQLException.class);
 
         assertThrows(RepositoryException.class, () -> discountCardRepository.getDiscountCardByNumber(1));
     }
 
     @Test
     void getDiscountCardByNumber_ifResulSetGetLongThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        Mockito.when(resultSet.next()).thenReturn(true);
-        Mockito.when(resultSet.getLong(Mockito.anyString())).thenThrow(SQLException.class);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getLong(anyString())).thenThrow(SQLException.class);
 
         assertThrows(RepositoryException.class, () -> discountCardRepository.getDiscountCardByNumber(1));
     }
 
     @Test
     void getDiscountCardByNumber_ifResulSetGetIntThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        Mockito.when(resultSet.next()).thenReturn(true);
-        Mockito.when(resultSet.getInt(Mockito.anyString())).thenThrow(SQLException.class);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getInt(anyString())).thenThrow(SQLException.class);
 
         assertThrows(RepositoryException.class, () -> discountCardRepository.getDiscountCardByNumber(1));
     }
 
     @Test
     void getDiscountCardByNumber_ifResulSetGetShortThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        Mockito.when(resultSet.next()).thenReturn(true);
-        Mockito.when(resultSet.getShort(Mockito.anyString())).thenThrow(SQLException.class);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getShort(anyString())).thenThrow(SQLException.class);
 
         assertThrows(RepositoryException.class, () -> discountCardRepository.getDiscountCardByNumber(1));
     }
@@ -103,11 +103,11 @@ class DiscountCardRepositoryImplTest {
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 3})
     void getDiscountCardByNumber_findExistValue(int number) throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        Mockito.when(resultSet.next()).thenReturn(true);
-        Mockito.when(resultSet.getInt(Mockito.anyString())).thenReturn(number);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getInt(anyString())).thenReturn(number);
 
         DiscountCard discountCard = discountCardRepository.getDiscountCardByNumber(number).orElseThrow();
 
@@ -116,10 +116,10 @@ class DiscountCardRepositoryImplTest {
 
     @Test
     void getDiscountCardByNumber_findNoExistValue() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        Mockito.when(resultSet.next()).thenReturn(false);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
 
         Optional<DiscountCard> discountCardOptional = discountCardRepository.getDiscountCardByNumber(1);
 

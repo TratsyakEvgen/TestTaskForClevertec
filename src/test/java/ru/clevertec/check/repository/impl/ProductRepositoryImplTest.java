@@ -1,6 +1,5 @@
 package ru.clevertec.check.repository.impl;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.clevertec.check.model.Product;
 import ru.clevertec.check.repository.ProductRepository;
@@ -25,8 +23,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProductRepositoryImplTest {
@@ -48,16 +46,16 @@ class ProductRepositoryImplTest {
 
     @Test
     void getProductsById_ifConnectionThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenThrow(SQLException.class);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenThrow(SQLException.class);
 
         assertThrows(RepositoryException.class, () -> productRepository.getProductsById(Set.of(1L)));
     }
 
     @Test
     void getProductsById_ifConnectionCreatArrayOfThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.createArrayOf(Mockito.anyString(), Mockito.any())).thenThrow(SQLException.class);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.createArrayOf(anyString(), any())).thenThrow(SQLException.class);
 
         assertThrows(RepositoryException.class, () -> productRepository.getProductsById(Set.of(1L)));
     }
@@ -65,52 +63,52 @@ class ProductRepositoryImplTest {
 
     @Test
     void getProductsById_ifPreparedStatementSetArrayThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.doThrow(SQLException.class).when(preparedStatement).setArray(Mockito.anyInt(), Mockito.any());
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        doThrow(SQLException.class).when(preparedStatement).setArray(anyInt(), any());
 
         assertThrows(RepositoryException.class, () -> productRepository.getProductsById(Set.of(1L)));
     }
 
     @Test
     void getProductsById_ifResulSetThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        Mockito.when(resultSet.next()).thenThrow(SQLException.class);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenThrow(SQLException.class);
 
         assertThrows(RepositoryException.class, () -> productRepository.getProductsById(Set.of(1L)));
     }
 
     @Test
     void getProductsById_ifResulSetGetLongThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        Mockito.when(resultSet.next()).thenReturn(true);
-        Mockito.when(resultSet.getLong(Mockito.anyString())).thenThrow(SQLException.class);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getLong(anyString())).thenThrow(SQLException.class);
 
         assertThrows(RepositoryException.class, () -> productRepository.getProductsById(Set.of(1L)));
     }
 
     @Test
     void getProductsById_ifResulSetGetStringThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        Mockito.when(resultSet.next()).thenReturn(true);
-        Mockito.when(resultSet.getString(Mockito.anyString())).thenThrow(SQLException.class);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getString(anyString())).thenThrow(SQLException.class);
 
         assertThrows(RepositoryException.class, () -> productRepository.getProductsById(Set.of(1L)));
     }
 
     @Test
     void getProductsById_ifResulSetGetIntThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        Mockito.when(resultSet.next()).thenReturn(true);
-        Mockito.when(resultSet.getInt(Mockito.anyString())).thenThrow(SQLException.class);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getInt(anyString())).thenThrow(SQLException.class);
 
         assertThrows(RepositoryException.class, () -> productRepository.getProductsById(Set.of(1L)));
     }
@@ -118,22 +116,22 @@ class ProductRepositoryImplTest {
 
     @Test
     void getProductsById_ifResulSetGetBigDecimalThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        Mockito.when(resultSet.next()).thenReturn(true);
-        Mockito.when(resultSet.getBigDecimal(Mockito.anyString())).thenThrow(SQLException.class);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getBigDecimal(anyString())).thenThrow(SQLException.class);
 
         assertThrows(RepositoryException.class, () -> productRepository.getProductsById(Set.of(1L)));
     }
 
     @Test
     void getProductsById_ifResulSetGetBooleanThrowSQLException() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        Mockito.when(resultSet.next()).thenReturn(true);
-        Mockito.when(resultSet.getBoolean(Mockito.anyString())).thenThrow(SQLException.class);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getBoolean(anyString())).thenThrow(SQLException.class);
 
         assertThrows(RepositoryException.class, () -> productRepository.getProductsById(Set.of(1L)));
     }
@@ -141,14 +139,14 @@ class ProductRepositoryImplTest {
     @ParameterizedTest
     @MethodSource("generateSetIdProducts")
     void getProductsById_findExistValue(Set<Long> setId) throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
 
 
         Set<Long> copiedSetId = new HashSet<>(setId);
-        Mockito.when(resultSet.next()).then(invocationOnMock -> !copiedSetId.isEmpty());
-        Mockito.when(resultSet.getLong(Mockito.anyString()))
+        when(resultSet.next()).then(invocationOnMock -> !copiedSetId.isEmpty());
+        when(resultSet.getLong(anyString()))
                 .then(invocationOnMock -> {
                     Long id = copiedSetId.stream().findFirst().orElseThrow();
                     copiedSetId.remove(id);
@@ -161,15 +159,15 @@ class ProductRepositoryImplTest {
                 .collect(Collectors.toSet());
 
 
-        Assertions.assertEquals(setId, productId);
+        assertEquals(setId, productId);
     }
 
     @Test
     void getProductsById_findNoExistValue() throws SQLException {
-        Mockito.when(connectionPool.takeConnection()).thenReturn(connection);
-        Mockito.when(connection.prepareStatement(Mockito.any())).thenReturn(preparedStatement);
-        Mockito.when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        Mockito.when(resultSet.next()).thenReturn(false);
+        when(connectionPool.takeConnection()).thenReturn(connection);
+        when(connection.prepareStatement(any())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
 
         List<Product> products = productRepository.getProductsById(Set.of(1L));
 

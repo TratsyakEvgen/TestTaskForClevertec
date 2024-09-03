@@ -6,7 +6,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.clevertec.check.service.validator.AnnotationExecutor;
 import ru.clevertec.check.service.validator.FieldScanner;
@@ -16,7 +15,8 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class NotNullExecutorTest {
@@ -35,7 +35,7 @@ class NotNullExecutorTest {
     @MethodSource("generateTestObjectAndListFieldAndExpectedMessages")
     void execute(TestObject testObject, List<Field> fields, List<String> expected) {
         List<String> actual = new ArrayList<>();
-        Mockito.when(fieldScanner.findAnnotation(NotNull.class, testObject)).thenReturn(fields);
+        when(fieldScanner.findAnnotation(NotNull.class, testObject)).thenReturn(fields);
 
         annotationExecutor.execute(testObject, actual);
 

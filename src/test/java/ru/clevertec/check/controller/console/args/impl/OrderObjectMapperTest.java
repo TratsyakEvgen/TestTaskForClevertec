@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.clevertec.check.controller.console.args.ObjectDeserializer;
 import ru.clevertec.check.controller.console.args.ObjectMapper;
@@ -15,7 +14,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrderObjectMapperTest {
@@ -45,11 +45,11 @@ class OrderObjectMapperTest {
         BigDecimal balanceCard = BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_UP);
         String discountCard = "1111";
 
-        Mockito.when(listObjectDeserializer.deserializer(Mockito.any(), Mockito.anyString(), Mockito.anyString()))
+        when(listObjectDeserializer.deserializer(any(), anyString(), anyString()))
                 .thenReturn(products);
-        Mockito.when(bigDecimalObjectDeserializer.deserializer(Mockito.any(), Mockito.anyString(), Mockito.anyString()))
+        when(bigDecimalObjectDeserializer.deserializer(any(), anyString(), anyString()))
                 .thenReturn(balanceCard);
-        Mockito.when(stringObjectDeserializer.deserializer(Mockito.any(), Mockito.anyString(), Mockito.anyString()))
+        when(stringObjectDeserializer.deserializer(any(), anyString(), anyString()))
                 .thenReturn(discountCard);
 
         Order actual = objectMapper.getObject(new String[]{});

@@ -9,8 +9,7 @@ import ru.clevertec.check.service.validator.annotation.NotNull;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FieldScannerImplTest {
     private FieldScanner fieldScanner;

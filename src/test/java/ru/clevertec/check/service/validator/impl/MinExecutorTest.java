@@ -7,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.clevertec.check.service.validator.AnnotationExecutor;
 import ru.clevertec.check.service.validator.FieldScanner;
@@ -20,8 +19,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MinExecutorTest {
@@ -39,7 +38,7 @@ class MinExecutorTest {
     @MethodSource("generateTestObjectAndListFieldAndExpectedMessages")
     void execute(TestObject testObject, List<Field> fields, List<String> expected) {
         List<String> actual = new ArrayList<>();
-        Mockito.when(fieldScanner.findAnnotation(Min.class, testObject)).thenReturn(fields);
+        when(fieldScanner.findAnnotation(Min.class, testObject)).thenReturn(fields);
 
         annotationExecutor.execute(testObject, actual);
 
@@ -50,7 +49,7 @@ class MinExecutorTest {
     @Test
     public void execute_incorrectField() {
         TestObjectWithIncorrectField testObject = new TestObjectWithIncorrectField("");
-        Mockito.when(fieldScanner.findAnnotation(Min.class, testObject))
+        when(fieldScanner.findAnnotation(Min.class, testObject))
                 .thenReturn(List.of(TestObjectWithIncorrectField.class.getDeclaredFields()));
 
         assertThrows(ValidatorException.class, () -> annotationExecutor.execute(testObject, Collections.emptyList()));

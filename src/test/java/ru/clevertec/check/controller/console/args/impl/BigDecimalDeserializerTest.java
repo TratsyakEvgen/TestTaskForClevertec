@@ -7,8 +7,7 @@ import ru.clevertec.check.controller.console.args.ObjectDeserializer;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BigDecimalDeserializerTest {
     private ObjectDeserializer<BigDecimal> objectDeserializer;
